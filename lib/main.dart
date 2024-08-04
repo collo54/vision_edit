@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
+
 
 import 'widgets/notebookpainter.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -21,11 +23,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MathNotebookPage extends StatelessWidget {
+class MathNotebookPage extends ConsumerWidget {
   const MathNotebookPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
       body: Stack(
@@ -35,14 +37,10 @@ class MathNotebookPage extends StatelessWidget {
             height: size.height,
             child: Container(
               color: Colors.white,
-             
-              child:
-              
-                  CustomPaint(
+              child: CustomPaint(
                 size: const Size(double.infinity, double.infinity),
                 painter: NotebookPagePainter(),
               ),
-          
             ),
           ),
           Positioned(
@@ -92,5 +90,3 @@ class MathNotebookPage extends StatelessWidget {
     }
   }
 }
-
-
