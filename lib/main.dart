@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
+import 'widgets/notebookpainter.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MathNotebookPage extends StatelessWidget {
-  const MathNotebookPage({Key? key}) : super(key: key);
+  const MathNotebookPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,33 +35,17 @@ class MathNotebookPage extends StatelessWidget {
             height: size.height,
             child: Container(
               color: Colors.white,
-              // Background color like a notebook page
+             
               child:
-                  // child: GridView.builder(
-                  //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  //     crossAxisCount: 3, // Two pages side-by-side
-                  //   ),
-                  //   itemCount: 10, // Adjust the number of pages as needed
-                  //   itemBuilder: (context, index) {
-                  //     return
-                  //  Container(
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(color: Colors.lightBlue, width: 2.0),
-                  // ),
-                  // margin: const EdgeInsets.all(8.0),
-                  // child:
+              
                   CustomPaint(
                 size: const Size(double.infinity, double.infinity),
                 painter: NotebookPagePainter(),
               ),
-              //  ),
-              //   },
-              // ),
+          
             ),
           ),
           Positioned(
-            // bottom: size.height / 2,
-            // left: 20,
             child: Align(
               alignment: Alignment.centerLeft,
               child: SizedBox(
@@ -88,40 +73,6 @@ class MathNotebookPage extends StatelessWidget {
         ],
       ),
     );
-    // return Scaffold(
-    //   body: SizedBox(
-    //     width: size.width,
-    //     height: size.height,
-    //     child: SingleChildScrollView(
-    //       scrollDirection: Axis.horizontal,
-    //       child: SizedBox(
-    //         width: size.width,
-    //         height: size.height,
-    //         child: Container(
-    //           color: Colors.white, // Background color like a notebook page
-    //           child: GridView.builder(
-    //             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    //               crossAxisCount: 3, // Two pages side-by-side
-    //             ),
-    //             itemCount: 10, // Adjust the number of pages as needed
-    //             itemBuilder: (context, index) {
-    //               return Container(
-    //                 decoration: BoxDecoration(
-    //                   border: Border.all(color: Colors.lightBlue, width: 2.0),
-    //                 ),
-    //                 margin: const EdgeInsets.all(8.0),
-    //                 child: CustomPaint(
-    //                   size: const Size(double.infinity, double.infinity),
-    //                   painter: NotebookPagePainter(),
-    //                 ),
-    //               );
-    //             },
-    //           ),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   Icon getIconForNumber(int number) {
@@ -142,27 +93,4 @@ class MathNotebookPage extends StatelessWidget {
   }
 }
 
-class NotebookPagePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..color = Colors.blueGrey[100]! // Light grid lines
-      ..strokeWidth = 1.0;
 
-    // Draw vertical lines
-    double gridSpacing = 20.0;
-    for (double x = gridSpacing; x < size.width; x += gridSpacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-
-    // Draw horizontal lines
-    for (double y = gridSpacing; y < size.height; y += gridSpacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
