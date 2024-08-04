@@ -1,6 +1,8 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'providers/camera_provider.dart';
 import 'widgets/notebookpainter.dart';
 
 void main() {
@@ -28,6 +30,7 @@ class MathNotebookPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.sizeOf(context);
+    final cameraController = ref.watch(cameraInitializationProvider);
     return Scaffold(
       body: Stack(
         children: [
@@ -42,6 +45,16 @@ class MathNotebookPage extends ConsumerWidget {
               ),
             ),
           ),
+          // SizedBox(
+          //  width: size.width,
+          //   height: size.height,
+          //   child:
+          cameraController.when(
+            data: (controller) => CameraPreview(controller),
+            error: (error, stackTrace) => Text('Error: $error'),
+            loading: () => const Center(child: CircularProgressIndicator()),
+          ),
+          //  ),
           Positioned(
             child: Align(
               alignment: Alignment.centerLeft,
@@ -49,7 +62,7 @@ class MathNotebookPage extends ConsumerWidget {
                 height: size.height / 2,
                 width: 100,
                 child: ListView.separated(
-                  itemCount: 5,
+                  itemCount: 3,
                   separatorBuilder: (BuildContext context, int index) =>
                       const SizedBox(
                     height: 15,
@@ -80,10 +93,7 @@ class MathNotebookPage extends ConsumerWidget {
         return const Icon(Icons.record_voice_over);
       case 2:
         return const Icon(Icons.add_a_photo);
-      case 3:
-        return const Icon(Icons.text_fields);
-      case 4:
-        return const Icon(Icons.file_copy);
+
       default:
         return const Icon(Icons.error); // Default icon for numbers outside 0-4
     }
