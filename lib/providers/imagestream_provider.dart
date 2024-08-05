@@ -9,12 +9,12 @@ class ImageStreamListener extends Notifier<List<Uint8List>> {
   }
 
   void addCurrentImage(Uint8List image) {
-    state.add(image);
+    state = [...state, image];
     // debugPrint('current page index is $state');
   }
 
   void clearLst() {
-    state.clear();
+    state = [];
     // debugPrint('current page index is $state');
   }
 }

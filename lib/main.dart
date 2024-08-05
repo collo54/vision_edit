@@ -1,9 +1,11 @@
 import 'dart:async';
+//import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image/image.dart' as img;
 
 import 'providers/camera_provider.dart';
@@ -64,7 +66,7 @@ class MathNotebookPage extends ConsumerWidget {
               child: SizedBox(
                   height: size.height / 2,
                   width: size.width,
-                  child: ListImageView()),
+                  child: ListImageView(),),
             ),
             Positioned(
               child: Align(
@@ -117,9 +119,12 @@ class MathNotebookPage extends ConsumerWidget {
       CameraController controller, WidgetRef ref) async {
     await controller.startImageStream((image) {
       var unit8image = captureJpeg(image);
+      // var unit8image = jpegConv(image);
       ref
           .read(imageStreamListenerProvider.notifier)
           .addCurrentImage(unit8image);
+      print(unit8image.length.toString());
+      print('hurayyyyyyyyyyyyyyy');
     });
   }
 
@@ -127,15 +132,89 @@ class MathNotebookPage extends ConsumerWidget {
     await controller.stopImageStream();
   }
 
+  Uint8List jpegConv(CameraImage image) {
+    try {
+      final imageData = img.decodeImage(image.planes[0].bytes);
+      if (imageData == null) {
+        Fluttertoast.showToast(
+            msg: "error decoding image",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        print('Error decoding image');
+        return Uint8List(0);
+      }
+      final jpeg = Uint8List.fromList(img.encodeJpg(imageData));
+      Fluttertoast.showToast(
+          msg: "jpeg data coool: ${jpeg.length}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print('jpeg data coool: ${jpeg.length}');
+      return jpeg;
+    } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error capturing image 2222: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print('Error capturing image 2222: $e');
+      return Uint8List(0);
+    }
+  }
+
   Uint8List captureJpeg(CameraImage image) {
-    img.Image imageData = img.Image.fromBytes(
-      width: image.width,
-      height: image.height,
-      bytes: image.planes[0].bytes.buffer,
-      // format: img.FormatType.jpeg,
-    );
-    Uint8List jpeg = Uint8List.fromList(img.encodeJpg(imageData));
-    return jpeg;
+    try {
+      final imageData = img.Image.fromBytes(
+        width: image.width,
+        height: image.height,
+        bytes: image.planes[0].bytes.buffer,
+        order: img.ChannelOrder.bgra,
+        numChannels: 1,
+      );
+
+      Fluttertoast.showToast(
+          msg: "img image is data: ${imageData.format}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print('img image is data: ${imageData.format}');
+      final jpeg = Uint8List.fromList(
+          img.encodeJpg(imageData)); //img.encodeJpg(imageData);
+      Fluttertoast.showToast(
+          msg: "jpeg data: ${jpeg.length}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print('jpeg data: ${jpeg.length}');
+      return jpeg;
+    } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error capturing image 88888888: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print('Error capturing image 88888888: $e');
+      return Uint8List(0);
+    }
   }
 
   Icon getIconForNumber(int number) {
