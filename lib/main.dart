@@ -64,9 +64,10 @@ class MathNotebookPage extends ConsumerWidget {
             Positioned(
               bottom: 10,
               child: SizedBox(
-                  height: size.height / 2,
-                  width: size.width,
-                  child: ListImageView(),),
+                height: size.height / 2,
+                width: size.width,
+                child: ListImageView(),
+              ),
             ),
             Positioned(
               child: Align(
@@ -75,7 +76,7 @@ class MathNotebookPage extends ConsumerWidget {
                   height: size.height / 2,
                   width: 100,
                   child: ListView.separated(
-                    itemCount: 3,
+                    itemCount: 2,
                     separatorBuilder: (BuildContext context, int index) =>
                         const SizedBox(
                       height: 12,
@@ -88,9 +89,8 @@ class MathNotebookPage extends ConsumerWidget {
                         onPressed: () {
                           if (index == 0) {
                             captureImageStream(controller, ref);
-                          } else if (index == 1) {
-                            stopImageStream(controller);
                           } else {
+                            stopImageStream(controller);
                             ref
                                 .read(imageStreamListenerProvider.notifier)
                                 .clearLst();
@@ -119,57 +119,25 @@ class MathNotebookPage extends ConsumerWidget {
       CameraController controller, WidgetRef ref) async {
     await controller.startImageStream((image) {
       var unit8image = captureJpeg(image);
-      // var unit8image = jpegConv(image);
+      Fluttertoast.showToast(
+          msg: "CameraImage format group: ${image.format.group.name}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.deepPurple,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print(image.format.group.name);
+
       ref
           .read(imageStreamListenerProvider.notifier)
           .addCurrentImage(unit8image);
       print(unit8image.length.toString());
-      print('hurayyyyyyyyyyyyyyy');
     });
   }
 
   FutureOr<void> stopImageStream(CameraController controller) async {
     await controller.stopImageStream();
-  }
-
-  Uint8List jpegConv(CameraImage image) {
-    try {
-      final imageData = img.decodeImage(image.planes[0].bytes);
-      if (imageData == null) {
-        Fluttertoast.showToast(
-            msg: "error decoding image",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        print('Error decoding image');
-        return Uint8List(0);
-      }
-      final jpeg = Uint8List.fromList(img.encodeJpg(imageData));
-      Fluttertoast.showToast(
-          msg: "jpeg data coool: ${jpeg.length}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      print('jpeg data coool: ${jpeg.length}');
-      return jpeg;
-    } catch (e) {
-      Fluttertoast.showToast(
-          msg: "Error capturing image 2222: $e",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      print('Error capturing image 2222: $e');
-      return Uint8List(0);
-    }
   }
 
   Uint8List captureJpeg(CameraImage image) {
@@ -178,41 +146,33 @@ class MathNotebookPage extends ConsumerWidget {
         width: image.width,
         height: image.height,
         bytes: image.planes[0].bytes.buffer,
-        order: img.ChannelOrder.bgra,
+        // order: img.ChannelOrder.bgra,
         numChannels: 1,
       );
-
+      print('img imageData.Format: ${imageData.format}');
+      final jpeg = Uint8List.fromList(img.encodeJpg(
+        imageData,
+      ));
       Fluttertoast.showToast(
-          msg: "img image is data: ${imageData.format}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      print('img image is data: ${imageData.format}');
-      final jpeg = Uint8List.fromList(
-          img.encodeJpg(imageData)); //img.encodeJpg(imageData);
-      Fluttertoast.showToast(
-          msg: "jpeg data: ${jpeg.length}",
+          msg: "image uint8list length: ${jpeg.length}",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.blueAccent,
           textColor: Colors.white,
           fontSize: 16.0);
-      print('jpeg data: ${jpeg.length}');
+      print('image uint8list length: ${jpeg.length}');
       return jpeg;
     } catch (e) {
       Fluttertoast.showToast(
-          msg: "Error capturing image 88888888: $e",
+          msg: "Error capturing image yuv_420_888: $e",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
-      print('Error capturing image 88888888: $e');
+      print('Error capturing image yuv_420_888: $e');
       return Uint8List(0);
     }
   }
@@ -222,9 +182,9 @@ class MathNotebookPage extends ConsumerWidget {
       case 0:
         return const Icon(Icons.camera);
       case 1:
-        return const Icon(Icons.record_voice_over);
-      case 2:
-        return const Icon(Icons.add_a_photo);
+        return const Icon(Icons.stop);
+      // case 2:
+      //   return const Icon(Icons.cancel);
 
       default:
         return const Icon(Icons.error); // Default icon for numbers outside 0-4

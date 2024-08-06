@@ -6,7 +6,7 @@ final cameraProvider = Provider((ref) {
   if (_cameras.isEmpty) {
     throw Exception('No cameras available 1');
   }
-  return CameraController(_cameras[0], ResolutionPreset.max);
+  return CameraController(_cameras[0], ResolutionPreset.max, fps: 2);
 });
 
 final cameraInitializationProvider = FutureProvider((ref) async {

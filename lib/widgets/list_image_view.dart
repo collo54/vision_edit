@@ -23,8 +23,8 @@ class ListImageView extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: SizedBox(
-            height: 130,
-            width: 70,
+            height: 230,
+            width: 110,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: Image.memory(imageList[index]),
