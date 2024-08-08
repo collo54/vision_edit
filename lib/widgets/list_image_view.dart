@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/providers.dart';
 
 class ListImageView extends ConsumerWidget {
-  const ListImageView({super.key});
+  final Size size;
+  const ListImageView({required this.size, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,10 +22,10 @@ class ListImageView extends ConsumerWidget {
       itemCount: imageList.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: SizedBox(
-            height: 230,
-            width: 110,
+            height: size.height / 2 - 10,
+            width: size.width / 3,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: Image.memory(imageList[index]),
