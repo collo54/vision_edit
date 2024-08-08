@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 //import 'dart:nativewrappers/_internal/vm/lib/internal_patch.dart';
 import 'dart:typed_data';
@@ -6,15 +7,19 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image/image.dart' as img;
+import 'package:vision_edit/services/object_detection_ml.dart';
 import 'dart:ui' as ui;
 
 import 'providers/camera_provider.dart';
+import 'providers/object_detection_provider.dart';
 import 'providers/providers.dart';
 import 'widgets/list_image_view.dart';
-import 'widgets/notebookpainter.dart';
+import 'painters/notebookpainter.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -156,13 +161,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MathNotebookPage(),
+      home: MathNotebookPage(),
     );
   }
 }
 
 class MathNotebookPage extends ConsumerWidget {
-  const MathNotebookPage({super.key});
+  MathNotebookPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -273,16 +278,17 @@ class MathNotebookPage extends ConsumerWidget {
       ref.read(imageFrameProvider.notifier).changeInt(imageNumber + 1);
       if (imageNumber % 20 == 0) {
         ref.read(imageFrameProvider.notifier).changeIntTo0();
-        var uiImage = await createImage(image);
-        var unit8image = await convertFlutterUiToImage(uiImage);
+        await objectDetect(image, ref, controller);
+        // var uiImage = await createImage(image);
+        // var unit8image = await convertFlutterUiToImage(uiImage);
 
         print(image.format.group.name);
 
-        // ref.read(uiImageProvider.notifier).addCurrentImage(uiImage);
-        ref
-            .read(imageStreamListenerProvider.notifier)
-            .addCurrentImage(unit8image);
-        print(unit8image.length.toString());
+        // // ref.read(uiImageProvider.notifier).addCurrentImage(uiImage);
+        // ref
+        //     .read(imageStreamListenerProvider.notifier)
+        //     .addCurrentImage(unit8image);
+        // print(unit8image.length.toString());
       }
     });
   }
@@ -294,61 +300,15 @@ class MathNotebookPage extends ConsumerWidget {
     if (isImageStreamOn == true) {
       ref.read(showToastProvider.notifier).changeBool(false);
       await controller.stopImageStream();
+      disposeObjectDetect(ref);
     }
   }
 
-  Uint8List captureJpeg(CameraImage image, bool isImageStreamOn) {
-    try {
-      final imageData = img.Image.fromBytes(
-        width: image.width,
-        height: image.height,
-        bytes: image.planes.first.bytes.buffer,
-        //  bytesOffset: 28, // <---- offset the buffer bytes
-        rowStride: image.planes.first.bytesPerRow,
-        numChannels: 4,
-        order: img.ChannelOrder.bgra,
-      );
-      // img.Image.fromBytes(
-      //   width: image.width,
-      //   height: image.height,
-      //   bytes: image.planes[0].bytes.buffer,
-      //   // order: img.ChannelOrder.bgra,
-      //   numChannels: 1,
-      // );
-      final rotatedImage = img.copyRotate(imageData, angle: 270);
-
-      print('img imageData.Format: ${rotatedImage.format}');
-      final jpg = Uint8List.fromList(img.encodeJpg(
-        rotatedImage,
-        chroma: img.JpegChroma.yuv420,
-      ));
-      if (isImageStreamOn) {
-        Fluttertoast.showToast(
-            msg: "image uint8list length: ${jpg.length}",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.blueAccent,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-
-      print('image uint8list length: ${jpg.length}');
-      return jpg;
-    } catch (e) {
-      if (isImageStreamOn) {
-        Fluttertoast.showToast(
-            msg: "Error capturing image yuv_420_888: $e",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-      print('Error capturing image yuv_420_888: $e');
-      return Uint8List(0);
-    }
+  void disposeObjectDetect(
+    WidgetRef ref,
+  ) {
+    final objectDetectionservice = ref.watch(objectDetectServiceProvider);
+    objectDetectionservice.disposeObjectDetector();
   }
 
   Icon getIconForNumber(int number) {
@@ -362,6 +322,135 @@ class MathNotebookPage extends ConsumerWidget {
 
       default:
         return const Icon(Icons.error); // Default icon for numbers outside 0-4
+    }
+  }
+
+  final _orientations = {
+    DeviceOrientation.portraitUp: 0,
+    DeviceOrientation.landscapeLeft: 90,
+    DeviceOrientation.portraitDown: 180,
+    DeviceOrientation.landscapeRight: 270,
+  };
+
+  InputImage? _inputImageFromCameraImage(
+    CameraImage image,
+    CameraController controller,
+  ) {
+    final WriteBuffer allBytes = WriteBuffer();
+    for (final Plane plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
+
+    final Size imageSize =
+        Size(image.width.toDouble(), image.height.toDouble());
+    final inputImageFormat =
+        InputImageFormatValue.fromRawValue(image.format.raw) ??
+            InputImageFormat.nv21;
+
+    return InputImage.fromBytes(
+      bytes: bytes,
+      metadata: InputImageMetadata(
+        size: imageSize,
+        rotation: InputImageRotation.rotation0deg, // used only in Android
+        format: inputImageFormat, // used only in iOS
+        bytesPerRow: image.planes[0].bytesPerRow, // used only in iOS
+      ),
+    );
+  }
+
+//   InputImage? _inputImageFromCameraImage(
+//     CameraImage image,
+//     CameraController controller,
+//   ) {
+//     final camera = controller.description;
+//     final sensorOrientation = camera.sensorOrientation;
+//     // print(
+//     //     'lensDirection: ${camera.lensDirection}, sensorOrientation: $sensorOrientation, ${_controller?.value.deviceOrientation} ${_controller?.value.lockedCaptureOrientation} ${_controller?.value.isCaptureOrientationLocked}');
+//     InputImageRotation? rotation;
+//     if (Platform.isIOS) {
+//       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
+//     } else if (Platform.isAndroid) {
+//       int? rotationCompensation =
+//           _orientations[controller.value.deviceOrientation];
+//       // if (rotationCompensation == null) return null;
+//       if (camera.lensDirection == CameraLensDirection.front) {
+//         // front-facing
+//         rotationCompensation =
+//             (sensorOrientation + rotationCompensation!) % 360;
+//       } else {
+//         // back-facing
+//         rotationCompensation =
+//             (sensorOrientation - rotationCompensation! + 360) % 360;
+//       }
+//       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+//       // print('rotationCompensation: $rotationCompensation');
+//     }
+//     // if (rotation == null) return null;
+//     // print('final rotation: $rotation');
+
+//     // get image format
+//     final format = InputImageFormatValue.fromRawValue(image.format.raw);
+//     // validate format depending on platform
+//     // only supported formats:
+//     // * nv21 for Android
+//     // * bgra8888 for iOS
+// //     if (format == null ||
+// // // Suggested code may be subject to a license. Learn more: ~LicenseLog:1810724695.
+// //         (Platform.isAndroid &&
+// //             (format != InputImageFormat.nv21 ||
+// //                 format != InputImageFormat.yuv420)) ||
+// //         (Platform.isIOS && format != InputImageFormat.bgra8888)) return null;
+
+//     // since format is constraint to nv21 or bgra8888, both only have one plane
+//     //  if (image.planes.length != 1) return null;
+//     final plane = image.planes.first;
+
+//     // compose InputImage using bytes
+//     return InputImage.fromBytes(
+//       bytes: plane.bytes,
+//       metadata: InputImageMetadata(
+//         size: Size(image.width.toDouble(), image.height.toDouble()),
+//         rotation: InputImageRotation.rotation0deg, // used only in Android
+//         format: format!, // used only in iOS
+//         bytesPerRow: plane.bytesPerRow, // used only in iOS
+//       ),
+//     );
+//   }
+
+  Future<void> objectDetect(
+      CameraImage image, WidgetRef ref, CameraController controller) async {
+    try {
+      final objectDetectionservice = ref.read(objectDetectServiceProvider);
+      objectDetectionservice.initializeObjectDetector(
+        modelPath: 'assets/ml/food_recognition.tflite',
+        option: 0,
+        detectmode: 0,
+      );
+
+      final inputImage = _inputImageFromCameraImage(image, controller);
+      if (inputImage == null) {
+        print('input image null');
+        return;
+      }
+      final objects = await objectDetectionservice.detectObjects(inputImage);
+      if (objects.isEmpty) {
+        print('zero objects detected');
+        return;
+      }
+      final dataString =
+          'objects: ${objects.map((e) => e.labels.map((e) => e.text)).toList().toString()}';
+      Fluttertoast.showToast(
+          msg: "images detected: $dataString",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      print(dataString);
+    } catch (e) {
+      print('Error in object detection: $e');
     }
   }
 }

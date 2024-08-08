@@ -3,10 +3,11 @@ import 'dart:ui' as ui;
 
 abstract class ObjectDetectionMl {
   Future<dynamic> detectObjects(InputImage inputImage);
-  void disposeObjecteDetector();
+  void disposeObjectDetector();
   void initializeObjectDetector({
     required String modelPath,
     required int option,
+    required int detectmode,
   });
 }
 
@@ -15,13 +16,7 @@ class ObjectDetectService extends ObjectDetectionMl {
   DetectionMode get mode => _mode;
 
   late ObjectDetector _objectDetector;
-  ObjectDetector get objectDetector => ObjectDetector(
-        options: ObjectDetectorOptions(
-          mode: _mode,
-          classifyObjects: true,
-          multipleObjects: true,
-        ),
-      );
+  ObjectDetector get objectDetector => _objectDetector;
 
   final _options = {
     'default': '',
@@ -47,38 +42,53 @@ class ObjectDetectService extends ObjectDetectionMl {
 
   @override
   Future<List<DetectedObject>> detectObjects(InputImage inputImage) async {
-    List<DetectedObject> objects =
-        await _objectDetector.processImage(inputImage);
-    return objects;
+    try {
+      List<DetectedObject> objects =
+          await _objectDetector.processImage(inputImage);
+      return objects;
+    } on Exception catch (e) {
+      throw Exception('Error in object detection: $e');
+    }
   }
 
   @override
-  void disposeObjecteDetector() {
+  void disposeObjectDetector() {
     _objectDetector.close();
   }
 
   @override
   void initializeObjectDetector(
-      {required String modelPath, required int option}) async {
-    if (option == 0) {
-      // use the default model
-      print('use the default model');
-      final options = ObjectDetectorOptions(
-        mode: _mode,
-        classifyObjects: true,
-        multipleObjects: true,
-      );
-      _objectDetector = ObjectDetector(options: options);
-    } else if (option > 0) {
-      // use the custom model
-      print('use the custom model $modelPath');
-      final options = LocalObjectDetectorOptions(
-        mode: _mode,
-        modelPath: modelPath,
-        classifyObjects: true,
-        multipleObjects: true,
-      );
-      _objectDetector = ObjectDetector(options: options);
+      {required String modelPath,
+      required int option,
+      required int detectmode}) async {
+    try {
+      if (detectmode == 0) {
+        _mode = DetectionMode.stream;
+      } else if (detectmode == 1) {
+        _mode = DetectionMode.single;
+      }
+      if (option == 0) {
+        // use the default model
+        print('use the default model');
+        final options = ObjectDetectorOptions(
+          mode: _mode,
+          classifyObjects: true,
+          multipleObjects: true,
+        );
+        _objectDetector = ObjectDetector(options: options);
+      } else if (option > 0) {
+        // use the custom model
+        print('use the custom model $modelPath');
+        final options = LocalObjectDetectorOptions(
+          mode: _mode,
+          modelPath: modelPath,
+          classifyObjects: true,
+          multipleObjects: true,
+        );
+        _objectDetector = ObjectDetector(options: options);
+      }
+    } on Exception catch (e) {
+      throw Exception('Error initializing object detection: $e');
     }
   }
 }

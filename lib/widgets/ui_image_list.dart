@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/providers.dart';
 
-import 'imagepainter.dart';
+import '../painters/imagepainter.dart';
 
 class UiImageView extends ConsumerWidget {
   const UiImageView({super.key});
