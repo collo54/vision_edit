@@ -7,6 +7,8 @@ import 'package:vision_edit/providers/showtoast_provider.dart';
 import 'image_frame_provider.dart';
 import 'imagestream_provider.dart';
 import 'initialized_provider.dart';
+import 'page_index.dart';
+import 'previous_page_index.dart';
 import 'uiimage_provider.dart';
 
 final isCameraInitializedProvider =
@@ -22,3 +24,7 @@ final imageFrameProvider =
     NotifierProvider<ImageFrameProvider, int>(ImageFrameProvider.new);
 
 final uiImageProvider = NotifierProvider<UiImage, List<ui.Image>>(UiImage.new);
+
+final pageIndexProvider = NotifierProvider<PageIndex, int>(PageIndex.new);
+final previousPageIndexProvider =
+    NotifierProvider<PreviousPageIndex, List<int>>(PreviousPageIndex.new);

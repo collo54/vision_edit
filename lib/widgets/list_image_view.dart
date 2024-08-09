@@ -14,7 +14,7 @@ class ListImageView extends ConsumerWidget {
     List<Uint8List> imageList = ref.watch(imageStreamListenerProvider);
     if (imageList.isEmpty) {
       return const Center(
-        child: Text('No images captured yet'),
+        child: Text('Press play to start ImageStream'),
       );
     }
     return ListView.builder(

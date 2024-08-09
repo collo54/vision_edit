@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'dart:ui' as ui;
 
 abstract class ObjectDetectionMl {
   Future<dynamic> detectObjects(InputImage inputImage);
@@ -47,20 +47,31 @@ class ObjectDetectService extends ObjectDetectionMl {
           await _objectDetector.processImage(inputImage);
       return objects;
     } on Exception catch (e) {
-      throw Exception('Error in object detection: $e');
+      if (kDebugMode) {
+        print('Error in detectObjects(): $e');
+      }
+      throw Exception('Error in detectObjects(): $e');
     }
   }
 
   @override
-  void disposeObjectDetector() {
-    _objectDetector.close();
+  Future<void> disposeObjectDetector() async {
+    try {
+      await _objectDetector.close();
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error in disposeObjectdetection(): $e');
+      }
+      throw Exception('Error in disposeObjectdetection(): $e');
+    }
   }
 
   @override
-  void initializeObjectDetector(
-      {required String modelPath,
-      required int option,
-      required int detectmode}) async {
+  void initializeObjectDetector({
+    required String modelPath,
+    required int option,
+    required int detectmode,
+  }) async {
     try {
       if (detectmode == 0) {
         _mode = DetectionMode.stream;
@@ -69,26 +80,33 @@ class ObjectDetectService extends ObjectDetectionMl {
       }
       if (option == 0) {
         // use the default model
-        print('use the default model');
+        if (kDebugMode) {
+          print('use the default model');
+        }
         final options = ObjectDetectorOptions(
           mode: _mode,
           classifyObjects: true,
-          multipleObjects: true,
+          multipleObjects: false,
         );
         _objectDetector = ObjectDetector(options: options);
       } else if (option > 0) {
         // use the custom model
-        print('use the custom model $modelPath');
+        if (kDebugMode) {
+          print('use the custom model $modelPath');
+        }
         final options = LocalObjectDetectorOptions(
           mode: _mode,
           modelPath: modelPath,
           classifyObjects: true,
-          multipleObjects: true,
+          multipleObjects: false,
         );
         _objectDetector = ObjectDetector(options: options);
       }
     } on Exception catch (e) {
-      throw Exception('Error initializing object detection: $e');
+      if (kDebugMode) {
+        print('Error in initializeObjectDetector(): $e');
+      }
+      throw Exception('Error in initializeObjectDetector(): $e');
     }
   }
 }
