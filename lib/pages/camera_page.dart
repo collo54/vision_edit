@@ -10,7 +10,9 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:vision_edit/constants/colors.dart';
 import 'package:vision_edit/painters/notebookpainter.dart';
+import 'package:vision_edit/providers/gemini_provider.dart';
 import 'package:vision_edit/providers/image_conversion_provider.dart';
+import 'package:vision_edit/widgets/display_camera_images.dart';
 
 import '../providers/camera_provider.dart';
 import '../providers/object_detection_provider.dart';
@@ -42,17 +44,23 @@ class CameraPage extends ConsumerWidget {
                 ),
               ),
             ),
+            // Positioned(
+            //   top: 0,
+            //   child: SizedBox(
+            //       height: size.height / 2,
+            //       width: size.width,
+            //       child: CameraPreview(controller)),
+            // ),
             Positioned(
-              top: 0,
-              child: SizedBox(
-                  height: size.height / 2,
-                  width: size.width,
-                  child: CameraPreview(controller)),
+              top: 10,
+              child: DisplayCameraImages(
+                widget: CameraPreview(controller),
+              ),
             ),
             Positioned(
-              bottom: 10,
+              bottom: 0,
               child: SizedBox(
-                height: size.height / 2 - 10,
+                height: size.height / 2 - 40,
                 width: size.width,
                 child: ListImageView(
                   size: size,
@@ -103,6 +111,22 @@ class CameraPage extends ConsumerWidget {
                 ),
               ),
             ),
+            Positioned(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FloatingActionButton.small(
+                  shape: const StadiumBorder(),
+                  foregroundColor: Colors.black87,
+                  backgroundColor: Colors.white,
+                  onPressed: () {},
+                  child: const HugeIcon(
+                    icon: HugeIcons.strokeRoundedAiVideo,
+                    color: kblack00008,
+                    size: 24.0,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
         error: (error, stackTrace) => Center(
@@ -110,6 +134,17 @@ class CameraPage extends ConsumerWidget {
         ),
         loading: () => const Center(
           child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  Future<dynamic> alertdialog(BuildContext context, String text) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          text,
         ),
       ),
     );
@@ -125,16 +160,19 @@ class CameraPage extends ConsumerWidget {
 
     await controller.startImageStream((image) async {
       ref.read(imageFrameProvider.notifier).changeInt(imageNumber + 1);
-      if (imageNumber % 10 == 0) {
+      if (imageNumber % 30 == 0) {
         ref.read(imageFrameProvider.notifier).changeIntTo0();
         // final imageConversionService = ref.read(imageConversionServiceProvider);
+        Uint8List bytes = cameraImageBytes(image);
         await objectDetect(
           image,
           ref,
           controller,
           option: 0,
           detectmode: 0,
+          bytes: bytes,
         );
+        await geminiPrompt(ref, bytes);
         // var uiImage = await imageConversionService.cameraImageToUiImage(image);
         // var unit8image =
         //     await imageConversionService.uiImageToImgImageBytes(uiImage);
@@ -150,6 +188,14 @@ class CameraPage extends ConsumerWidget {
         // }
       }
     });
+  }
+
+  Future<void> geminiPrompt(WidgetRef ref, Uint8List bytes) async {
+    final gemini = ref.watch(geminiProvider);
+    gemini.initGeminiModel(
+      genmodel: 'gemini-1.5-pro',
+    );
+    await gemini.generateText(promptImage: [bytes]);
   }
 
   FutureOr<void> stopImageStream(
@@ -188,7 +234,7 @@ class CameraPage extends ConsumerWidget {
       //   return const Icon(Icons.info);
 
       default:
-        return  const HugeIcon(
+        return const HugeIcon(
           icon: HugeIcons.strokeRoundedVideo01,
           color: kblack00008,
           size: 24.0,
@@ -206,12 +252,9 @@ class CameraPage extends ConsumerWidget {
   InputImage? _inputImageFromCameraImage(
     CameraImage image,
     CameraController controller,
+    Uint8List bytes,
   ) {
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
+    // Uint8List bytes = cameraImageBytes(image);
 
     final Size imageSize =
         Size(image.width.toDouble(), image.height.toDouble());
@@ -228,6 +271,15 @@ class CameraPage extends ConsumerWidget {
         bytesPerRow: image.planes[0].bytesPerRow, // used only in iOS
       ),
     );
+  }
+
+  Uint8List cameraImageBytes(CameraImage image) {
+    final WriteBuffer allBytes = WriteBuffer();
+    for (final Plane plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
+    return bytes;
   }
 
 //   InputImage? _inputImageFromCameraImage(
@@ -295,6 +347,7 @@ class CameraPage extends ConsumerWidget {
     CameraController controller, {
     required int option,
     required int detectmode,
+    required Uint8List bytes,
   }) async {
     try {
       final objectDetectionservice = ref.read(objectDetectServiceProvider);
@@ -304,7 +357,7 @@ class CameraPage extends ConsumerWidget {
         detectmode: detectmode,
       );
 
-      final inputImage = _inputImageFromCameraImage(image, controller);
+      final inputImage = _inputImageFromCameraImage(image, controller, bytes);
       if (inputImage == null) {
         if (kDebugMode) {
           print('input image null');

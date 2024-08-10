@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/providers.dart';
+import 'package:vision_edit/widgets/thumbnail_widget.dart';
 
 class ListImageView extends ConsumerWidget {
   final Size size;
@@ -13,8 +14,24 @@ class ListImageView extends ConsumerWidget {
     //ref.listen(imageStreamListenerProvider, (_, _){});
     List<Uint8List> imageList = ref.watch(imageStreamListenerProvider);
     if (imageList.isEmpty) {
-      return const Center(
-        child: Text('Press play to start ImageStream'),
+      return Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: ListView(
+          children: [
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+            ThumbnailWidget(),
+          ],
+        ),
       );
     }
     return ListView.builder(
@@ -24,7 +41,7 @@ class ListImageView extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: SizedBox(
-            height: size.height / 2 - 10,
+            height: size.height / 2 - 40,
             width: size.width / 3,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),

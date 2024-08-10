@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/constants/colors.dart';
 
 class DisplayCameraImages extends ConsumerWidget {
-  const DisplayCameraImages({super.key});
+  DisplayCameraImages({required this.widget, super.key});
+  Widget? widget;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -11,8 +12,9 @@ class DisplayCameraImages extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Container(
-        width: size.width - 40,
-        height: 150,
+        child: widget,
+        width: size.width - 20,
+        height: size.height / 2 - 16,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(5),
