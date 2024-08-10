@@ -9,6 +9,6 @@ class PageIndex extends Notifier<int> {
 
   void currentIndex(int messageResponse) {
     state = messageResponse;
-    debugPrint('current page index is $state');
+    debugPrint('current page index :$state');
   }
 }

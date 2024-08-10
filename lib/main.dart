@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'custom/home_scaffold.dart';
-import 'pages/camera_page.dart';
 
 void main() {
   runApp(
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  const HomeScaffold(),   // CameraPage(),
+      home: const HomeScaffold(), // CameraPage(),
     );
   }
 }

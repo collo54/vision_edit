@@ -12,7 +12,7 @@ abstract class GeminiGenModelPro {
 }
 
 class GeminiGenAiService extends GeminiGenModelPro {
-  final apiKeyGemini = Platform.environment['GEMINI_KEY'];
+  String get apiKeyGemini => const String.fromEnvironment('GEMINI_KEY');
   late GenerativeModel _geminiModel;
   GenerativeModel get geminiModel => _geminiModel;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImageStreamListener extends Notifier<List<Uint8List>> {
+class GeminiImageListener extends Notifier<List<Uint8List>> {
   @override
   List<Uint8List> build() {
     return [];
@@ -9,11 +9,11 @@ class ImageStreamListener extends Notifier<List<Uint8List>> {
 
   void addCurrentImage(Uint8List image) {
     state = [...state, image];
-    debugPrint('current ImageStreamUI bytes list length: ${state.length}');
+    debugPrint('current gemini Image byte list length: ${state.length}');
   }
 
   void clearLst() {
     state = [];
-    debugPrint('clear ImageStreamUI bytes list length: ${state.length}');
+    debugPrint('clear gemini Image byte list length: ${state.length}');
   }
 }

@@ -11,7 +11,7 @@ class ListImageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //ref.listen(imageStreamListenerProvider, (_, _){});
+    ref.watch(uiImageIndexProvider);
     List<Uint8List> imageList = ref.watch(imageStreamListenerProvider);
     if (imageList.isEmpty) {
       return Padding(
@@ -34,22 +34,33 @@ class ListImageView extends ConsumerWidget {
         ),
       );
     }
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: imageList.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: SizedBox(
-            height: size.height / 2 - 40,
-            width: size.width / 3,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: Image.memory(imageList[index]),
-            ),
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: SizedBox(
+        height: 200,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: imageList.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(uiImageIndexProvider.notifier).currentIndex(index);
+                },
+                child: SizedBox(
+                  height: 200,
+                  width: size.width / 3,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.memory(imageList[index]),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

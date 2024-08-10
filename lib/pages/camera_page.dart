@@ -28,6 +28,7 @@ class CameraPage extends ConsumerWidget {
     final cameraController = ref.watch(cameraInitializationProvider);
     bool isImageStreamOn = ref.watch(showToastProvider);
     final currentTab = ref.watch(pageIndexProvider);
+    List<int> bytesListIndexes = ref.watch(uiImageIndexProvider);
     ref.watch(previousPageIndexProvider);
     return Scaffold(
       body: cameraController.when(
@@ -71,7 +72,7 @@ class CameraPage extends ConsumerWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: SizedBox(
-                  height: size.height / 2,
+                  height: 100,
                   width: 100,
                   child: ListView.separated(
                     itemCount: 2,
@@ -118,7 +119,17 @@ class CameraPage extends ConsumerWidget {
                   shape: const StadiumBorder(),
                   foregroundColor: Colors.black87,
                   backgroundColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: () async {
+                    final List<Uint8List> bytesListUnfiltered =
+                        ref.watch(geminiImageListenerProvider);
+                    final bytes = bytesListIndexes.map((index) {
+                      return bytesListUnfiltered[index];
+                    }).toList();
+
+                    await geminiPrompt(ref, bytes);
+
+                    ref.read(uiImageIndexProvider.notifier).clearIndex();
+                  },
                   child: const HugeIcon(
                     icon: HugeIcons.strokeRoundedAiVideo,
                     color: kblack00008,
@@ -162,7 +173,7 @@ class CameraPage extends ConsumerWidget {
       ref.read(imageFrameProvider.notifier).changeInt(imageNumber + 1);
       if (imageNumber % 30 == 0) {
         ref.read(imageFrameProvider.notifier).changeIntTo0();
-        // final imageConversionService = ref.read(imageConversionServiceProvider);
+        final imageConversionService = ref.read(imageConversionServiceProvider);
         Uint8List bytes = cameraImageBytes(image);
         await objectDetect(
           image,
@@ -172,30 +183,31 @@ class CameraPage extends ConsumerWidget {
           detectmode: 0,
           bytes: bytes,
         );
-        await geminiPrompt(ref, bytes);
-        // var uiImage = await imageConversionService.cameraImageToUiImage(image);
-        // var unit8image =
-        //     await imageConversionService.uiImageToImgImageBytes(uiImage);
+        // await geminiPrompt(ref, bytes);
+        var uiImage = await imageConversionService.cameraImageToUiImage(image);
+        var unit8image =
+            await imageConversionService.uiImageToImgImageBytes(uiImage);
 
-        // print(image.format.group.name);
+        debugPrint(image.format.group.name);
 
-        // // ref.read(uiImageProvider.notifier).addCurrentImage(uiImage);
-        // ref
-        //     .read(imageStreamListenerProvider.notifier)
-        //     .addCurrentImage(unit8image);
-        // if (kDebugMode) {
-        //   print(unit8image.length.toString());
-        // }
+        // ref.read(uiImageProvider.notifier).addCurrentImage(uiImage);
+        ref
+            .read(imageStreamListenerProvider.notifier)
+            .addCurrentImage(unit8image);
+        ref.read(geminiImageListenerProvider.notifier).addCurrentImage(bytes);
+        if (kDebugMode) {
+          print(unit8image.length.toString());
+        }
       }
     });
   }
 
-  Future<void> geminiPrompt(WidgetRef ref, Uint8List bytes) async {
+  Future<String?> geminiPrompt(WidgetRef ref, List<Uint8List> bytes) async {
     final gemini = ref.watch(geminiProvider);
     gemini.initGeminiModel(
       genmodel: 'gemini-1.5-pro',
     );
-    await gemini.generateText(promptImage: [bytes]);
+    return await gemini.generateText(promptImage: bytes);
   }
 
   FutureOr<void> stopImageStream(
