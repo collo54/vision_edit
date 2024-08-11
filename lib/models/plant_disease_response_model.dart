@@ -4,6 +4,7 @@ class PlantDiseaseResponseModel {
   final String humanAndLivestockDanger;
   final String causeOfDisease;
   final List<String> preventativeMeasures;
+  final List<String> treatment;
 
   const PlantDiseaseResponseModel({
     required this.plant,
@@ -11,6 +12,7 @@ class PlantDiseaseResponseModel {
     required this.humanAndLivestockDanger,
     required this.causeOfDisease,
     required this.preventativeMeasures,
+    required this.treatment,
   });
 
   factory PlantDiseaseResponseModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +23,7 @@ class PlantDiseaseResponseModel {
       causeOfDisease: json['Cause of Disease'] as String,
       preventativeMeasures:
           List<String>.from(json['Preventative Measures'] as List),
+      treatment: List<String>.from(json['Treatment'] as List),
     );
   }
 
@@ -31,6 +34,7 @@ class PlantDiseaseResponseModel {
     data['Human and Livestock Danger'] = humanAndLivestockDanger;
     data['Cause of Disease'] = causeOfDisease;
     data['Preventative Measures'] = preventativeMeasures;
+    data['Treatment'] = preventativeMeasures;
     return data;
   }
 }
@@ -42,4 +46,14 @@ class PlantDiseaseResponseModel {
 //   "Cause of Disease": "Infection occurs during pollination or soon after, particularly when silks remain moist for extended periods due to high humidity or rain.  Wounding of the ear by insects or birds makes infection more likely.",
 //   "Preventative Measures": ["Plant resistant corn hybrids if available.", "Ensure proper irrigation to avoid stressing plants, particularly during silking.", "Control insect pests and birds that can damage ears.", "Rotate crops regularly.", "Till under crop residue after harvest to reduce fungal inoculum."]
 // }
+
+
+// {
+//   "Plant": "no plant detected",
+//   "Disease": "no disease present",
+//   "Human and Livestock Danger": "no dangers",
+//   "Cause of Disease": "not applicable",
+//   "Preventative Measures": []
+// }
+
 

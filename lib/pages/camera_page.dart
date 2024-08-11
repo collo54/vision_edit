@@ -13,7 +13,10 @@ import 'package:vision_edit/painters/notebookpainter.dart';
 import 'package:vision_edit/providers/gemini_provider.dart';
 import 'package:vision_edit/providers/image_conversion_provider.dart';
 import 'package:vision_edit/widgets/display_camera_images.dart';
+import 'package:vision_edit/widgets/display_gemini_response.dart';
+import 'package:vision_edit/widgets/prompt_text_button_widget.dart';
 
+import '../models/plant_disease_response_model.dart';
 import '../providers/camera_provider.dart';
 import '../providers/object_detection_provider.dart';
 import '../providers/providers.dart';
@@ -21,6 +24,7 @@ import '../widgets/list_image_view.dart';
 
 class CameraPage extends ConsumerWidget {
   CameraPage({super.key});
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,8 +33,11 @@ class CameraPage extends ConsumerWidget {
     bool isImageStreamOn = ref.watch(showToastProvider);
     final currentTab = ref.watch(pageIndexProvider);
     List<int> bytesListIndexes = ref.watch(uiImageIndexProvider);
+    List<PlantDiseaseResponseModel> geminiResponseDataList =
+        ref.watch(geminiPlantDiseaseResponseModelProvider);
     ref.watch(previousPageIndexProvider);
     return Scaffold(
+      key: _scaffoldKey,
       body: cameraController.when(
         data: (controller) => Stack(
           children: [
@@ -63,9 +70,13 @@ class CameraPage extends ConsumerWidget {
               child: SizedBox(
                 height: size.height / 2 - 40,
                 width: size.width,
-                child: ListImageView(
-                  size: size,
-                ), // UiImageView(),
+                child: geminiResponseDataList.isEmpty
+                    ? ListImageView(
+                        size: size,
+                      )
+                    : DisplayGeminiResponseView(
+                        size: size,
+                      ), // UiImageView(),
               ),
             ),
             Positioned(
@@ -115,27 +126,30 @@ class CameraPage extends ConsumerWidget {
             Positioned(
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: FloatingActionButton.small(
-                  shape: const StadiumBorder(),
-                  foregroundColor: Colors.black87,
-                  backgroundColor: Colors.white,
-                  onPressed: () async {
-                    final List<Uint8List> bytesListUnfiltered =
-                        ref.watch(geminiImageListenerProvider);
-                    final bytes = bytesListIndexes.map((index) {
-                      return bytesListUnfiltered[index];
-                    }).toList();
-
-                    await geminiPrompt(ref, bytes);
-
-                    ref.read(uiImageIndexProvider.notifier).clearIndex();
-                  },
-                  child: const HugeIcon(
-                    icon: HugeIcons.strokeRoundedAiVideo,
-                    color: kblack00008,
-                    size: 24.0,
-                  ),
-                ),
+                child: geminiResponseDataList.isEmpty
+                    ? PromptTextButtonWidget(
+                        onPressed: () async {
+                          _scaffoldKey.currentState!.showBodyScrim(true, 0.5);
+                          await queryGemini(ref, bytesListIndexes);
+                          _scaffoldKey.currentState!.showBodyScrim(false, 0.5);
+                        },
+                        text: 'Ask Gemini')
+                    : FloatingActionButton.small(
+                        shape: const StadiumBorder(),
+                        foregroundColor: Colors.black87,
+                        backgroundColor: Colors.white,
+                        onPressed: () async {
+                          ref
+                              .read(geminiPlantDiseaseResponseModelProvider
+                                  .notifier)
+                              .clearIndex();
+                        },
+                        child: const HugeIcon(
+                          icon: HugeIcons.strokeRoundedClean,
+                          color: kblack00008,
+                          size: 24.0,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -148,6 +162,24 @@ class CameraPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> queryGemini(WidgetRef ref, List<int> bytesListIndexes) async {
+    final List<Uint8List> bytesListUnfiltered =
+        ref.watch(geminiImageListenerProvider);
+    final bytes = bytesListIndexes.map((index) {
+      return bytesListUnfiltered[index];
+    }).toList();
+
+    final plantDiseaseResponseModel = await geminiPrompt(ref, bytes);
+
+    ref
+        .read(geminiPlantDiseaseResponseModelProvider.notifier)
+        .currentIndex(plantDiseaseResponseModel);
+
+    ref.read(uiImageIndexProvider.notifier).clearIndex();
+    ref.read(imageStreamListenerProvider.notifier).clearLst();
+    ref.read(geminiImageListenerProvider.notifier).clearLst();
   }
 
   Future<dynamic> alertdialog(BuildContext context, String text) {
@@ -202,7 +234,8 @@ class CameraPage extends ConsumerWidget {
     });
   }
 
-  Future<String?> geminiPrompt(WidgetRef ref, List<Uint8List> bytes) async {
+  Future<PlantDiseaseResponseModel> geminiPrompt(
+      WidgetRef ref, List<Uint8List> bytes) async {
     final gemini = ref.watch(geminiProvider);
     gemini.initGeminiModel(
       genmodel: 'gemini-1.5-pro',

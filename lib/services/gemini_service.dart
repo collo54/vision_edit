@@ -1,13 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
+import '../models/plant_disease_response_model.dart';
+
 abstract class GeminiGenModelPro {
   void initGeminiModel({
     required String genmodel,
   });
-  Future<String?> generateText({required List<Uint8List> promptImage});
+  Future<PlantDiseaseResponseModel> generateText(
+      {required List<Uint8List> promptImage});
 //  Future<String> generateImage({required String prompt});
 }
 
@@ -43,16 +47,18 @@ class GeminiGenAiService extends GeminiGenModelPro {
   }
 
   @override
-  Future<String?> generateText({required List<Uint8List> promptImage}) async {
+  Future<PlantDiseaseResponseModel> generateText(
+      {required List<Uint8List> promptImage}) async {
     try {
       const prompt =
-          'What plant is this and what disease is present, if none present say no disease present. What is the disease danger to humans and livestock if none say no dangers? How is the disease caused? finally what are the preventive measures for the disease? Format response using this JSON schema:\n\n'
+          'What plant is this and what disease is present, if none present say no disease present. if no plant detected say no plant detected. What is the disease danger to humans and livestock if none say no dangers? How is the disease caused? What are the preventive measures for the disease? Finally What are the treatment for the disease? Format response using this JSON schema:\n\n'
           'Response = {\n'
           ' "Plant": string ,\n'
           '  "Disease": string,\n'
           '  "Human and Livestock Danger": string,\n'
           '  "Cause of Disease": string,\n'
           '  "Preventative Measures": string[]\n'
+          '  "Treatment": string[]\n'
           '}\n'
           'Return: Response';
       final mainText = TextPart(prompt);
@@ -70,10 +76,13 @@ class GeminiGenAiService extends GeminiGenModelPro {
       if (kDebugMode) {
         print(response.text);
       }
-      return response.text;
+      final plantDiseaseResponseModel =
+          PlantDiseaseResponseModel.fromJson(jsonDecode(response.text!));
+
+      return plantDiseaseResponseModel;
     } catch (e) {
       if (kDebugMode) {
-        print('Error generate text: $e');
+        print('Error generating text from gemini: $e');
       }
       rethrow;
     }
