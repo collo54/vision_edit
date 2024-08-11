@@ -22,7 +22,7 @@ abstract class AuthBase {
 class AuthService implements AuthBase {
   final _firebaseAuth = FirebaseAuth.instance;
   static const String clientId =
-      '1013929161210-2bfkcdh7d2pk1mp9gd7ken46saapfuq0.apps.googleusercontent.com';
+      '87655672816-d8vqvmflt05edcq78el8375rhurrg570.apps.googleusercontent.com';
   static const String webClientId =
       '1013929161210-sckorf41obbiadtdlvtt4e9ua05b6jiu.apps.googleusercontent.com';
 
@@ -91,8 +91,9 @@ class AuthService implements AuthBase {
             //   'email',
             //   'profile',
             // ],
+            scopes: [],
             serverClientId: clientId,
-            // clientId: kIsWeb ? webClientId : clientId,
+           // clientId: clientId,
           );
     GoogleSignInAccount? googleAccount = kIsWeb
         ? await googleSignIn.signInSilently()
