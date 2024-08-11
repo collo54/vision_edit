@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/providers.dart';
+import 'package:vision_edit/widgets/gen_ai_response_widget.dart';
 import 'package:vision_edit/widgets/thumbnail_widget.dart';
 
 class ListImageView extends ConsumerWidget {
@@ -17,10 +18,12 @@ class ListImageView extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 30),
         child: ListView(
-          children: [
-            ThumbnailWidget(),
-            ThumbnailWidget(),
-            ThumbnailWidget(),
+          children: const [
+            GenAiResponseWidget(
+              title: 'Instructions',
+              description:
+                  'Press play button to capture Image frames.\n Press stop button to stop capturing.\n Select the images needed.\n Ask Gemini with selected Images.\n Read response and opt to save or delete .',
+            ),
           ],
         ),
       );

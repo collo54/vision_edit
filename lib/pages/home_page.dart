@@ -18,7 +18,8 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-      
+        backgroundColor: kwhite25525525510,
+        surfaceTintColor: kwhite25525525510,
         title: Text(
           'Home Page',
           style: GoogleFonts.poppins(
