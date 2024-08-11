@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:vision_edit/custom/auth_state.dart';
 import 'firebase_options.dart';
 
 import 'custom/home_scaffold.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScaffold(), // CameraPage(),
+      home: const AuthState(), // CameraPage(),
     );
   }
 }

@@ -97,8 +97,9 @@ class AuthService implements AuthBase {
     GoogleSignInAccount? googleAccount = kIsWeb
         ? await googleSignIn.signInSilently()
         : await googleSignIn.signIn();
-    if (kIsWeb && googleAccount == null)
+    if (kIsWeb && googleAccount == null) {
       googleAccount = await (googleSignIn.signIn());
+    }
     if (googleAccount != null) {
       final googleAuth = await googleAccount.authentication;
       if (kIsWeb ||

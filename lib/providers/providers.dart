@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/showtoast_provider.dart';
 
 import '../models/plant_disease_response_model.dart';
+import '../services/auth_service.dart';
 import 'gemin_image_provider.dart';
 import 'gemini_image_index_provider.dart';
 import 'gemini_response_text_provider.dart';
@@ -47,3 +48,8 @@ final geminiPlantDiseaseResponseModelProvider = NotifierProvider<
 
 final uiImageIndexProvider =
     NotifierProvider<UiImageIndex, List<int>>(UiImageIndex.new);
+
+/// creates a provider for AuthService class
+final authenticate = Provider((ref) => AuthService());
+
+
