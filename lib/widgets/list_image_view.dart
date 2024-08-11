@@ -12,7 +12,7 @@ class ListImageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(uiImageIndexProvider);
+   List<int> selectedIndex = ref.watch(uiImageIndexProvider);
     List<Uint8List> imageList = ref.watch(imageStreamListenerProvider);
     if (imageList.isEmpty) {
       return Padding(
@@ -42,15 +42,25 @@ class ListImageView extends ConsumerWidget {
                 onTap: () {
                   ref.read(uiImageIndexProvider.notifier).currentIndex(index);
                 },
-                child: SizedBox(
+                child: Container(
                   height: 200,
                   width: size.width / 3,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: selectedIndex.contains(index)
+                          ? Colors.blue
+                          : Colors.transparent,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5),
                     child: Image.memory(imageList[index]),
                   ),
                 ),
               ),
+
             );
           },
         ),
