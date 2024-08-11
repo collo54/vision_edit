@@ -226,7 +226,9 @@ class CameraPage extends ConsumerWidget {
         ref
             .read(imageStreamListenerProvider.notifier)
             .addCurrentImage(unit8image);
-        ref.read(geminiImageListenerProvider.notifier).addCurrentImage(bytes);
+        ref
+            .read(geminiImageListenerProvider.notifier)
+            .addCurrentImage(unit8image);
         if (kDebugMode) {
           print(unit8image.length.toString());
         }

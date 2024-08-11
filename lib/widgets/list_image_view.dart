@@ -12,7 +12,7 @@ class ListImageView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   List<int> selectedIndex = ref.watch(uiImageIndexProvider);
+    List<int> selectedIndex = ref.watch(uiImageIndexProvider);
     List<Uint8List> imageList = ref.watch(imageStreamListenerProvider);
     if (imageList.isEmpty) {
       return Padding(
@@ -22,7 +22,7 @@ class ListImageView extends ConsumerWidget {
             GenAiResponseWidget(
               title: 'Instructions',
               description:
-                  'Press play button to capture Image frames.\n Press stop button to stop capturing.\n Select the images needed.\n Ask Gemini with selected Images.\n Read response and opt to save or delete .',
+                  'Press play button to capture Image frames.\nPress stop button to stop capturing.\nSelect the images needed.\nAsk Gemini with selected Images.\nRead response and opt to save or delete .',
             ),
           ],
         ),
@@ -60,7 +60,6 @@ class ListImageView extends ConsumerWidget {
                   ),
                 ),
               ),
-
             );
           },
         ),

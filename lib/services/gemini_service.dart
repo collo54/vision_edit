@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 import '../models/plant_disease_response_model.dart';
@@ -39,6 +41,14 @@ class GeminiGenAiService extends GeminiGenModelPro {
       );
       // return model;
     } catch (e) {
+      Fluttertoast.showToast(
+          msg: "error initGeminiModel: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
       if (kDebugMode) {
         print('Error initializing GenerativeModel: $e');
       }
@@ -81,6 +91,14 @@ class GeminiGenAiService extends GeminiGenModelPro {
 
       return plantDiseaseResponseModel;
     } catch (e) {
+      Fluttertoast.showToast(
+          msg: "error generateIext: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
       if (kDebugMode) {
         print('Error generating text from gemini: $e');
       }
