@@ -52,16 +52,14 @@ class DisplayGeminiResponseView extends ConsumerWidget {
                         .map((e) => '$e\n')
                         .toString(),
                   ),
-
-            //     geminiResponseDataList.last.treatment.isEmpty
-            // ? const SizedBox()
-            // : GenAiResponseWidget(
-            //     title: 'Prevention',
-            //     description: geminiResponseDataList
-            //         .last.treatment
-            //         .map((e) => '$e\n')
-            //         .toString(),
-            //   ),
+            geminiResponseDataList.last.treatment.isEmpty
+                ? const SizedBox()
+                : GenAiResponseWidget(
+                    title: 'Treatment',
+                    description: geminiResponseDataList.last.treatment
+                        .map((e) => '$e\n')
+                        .toString(),
+                  ),
           ],
         ),
       );

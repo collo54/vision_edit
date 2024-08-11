@@ -61,7 +61,7 @@ class GeminiGenAiService extends GeminiGenModelPro {
       {required List<Uint8List> promptImage}) async {
     try {
       const prompt =
-          'What plant is this and what disease is present, if none present say no disease present. if no plant detected say no plant detected. What is the disease danger to humans and livestock if none say no dangers? How is the disease caused? What are the preventive measures for the disease? Finally What are the treatment for the disease? Format response using this JSON schema:\n\n'
+          'What plant is this state the species and what disease is present, if none present say no disease present. if no plant detected say no plant detected. What is the disease danger to humans and livestock if none say no dangers? How is the disease caused? What are the preventive measures for the disease? Finally What are the treatment for the disease? Format response using this JSON schema:\n\n'
           'Response = {\n'
           ' "Plant": string ,\n'
           '  "Disease": string,\n'
