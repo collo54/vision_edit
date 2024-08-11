@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 //import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -53,17 +55,63 @@ class AuthService implements AuthBase {
   @override
   Future<UserModel?> signInWithEmailAndPassword(
       String email, String password) async {
-    final authResult = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email, password: password);
-    return _userFromFirebase(authResult.user);
+    try {
+      final authResult = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+      Fluttertoast.showToast(
+          msg: "Signing in",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return _userFromFirebase(authResult.user);
+    } on Exception catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error sigining in with email: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      if (kDebugMode) {
+        print('Error sigining in with email: $e');
+      }
+      rethrow;
+    }
   }
 
   @override
   Future<UserModel?> createUserWithEmailAndPassword(
       String email, String password) async {
-    final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email, password: password);
-    return _userFromFirebase(authResult.user);
+    try {
+      final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      Fluttertoast.showToast(
+          msg: "Creating account",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return _userFromFirebase(authResult.user);
+    } on Exception catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error creating account: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      if (kDebugMode) {
+        print('Error creating account: $e');
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -93,7 +141,7 @@ class AuthService implements AuthBase {
             // ],
             scopes: [],
             serverClientId: clientId,
-           // clientId: clientId,
+            // clientId: clientId,
           );
     GoogleSignInAccount? googleAccount = kIsWeb
         ? await googleSignIn.signInSilently()

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:vision_edit/constants/colors.dart';
 import 'package:vision_edit/widgets/thumbnail_widget.dart';
 
@@ -30,6 +32,19 @@ class HomePage extends ConsumerWidget {
             fontStyle: FontStyle.normal,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final auth = ref.read(authenticate);
+              await auth.signOut();
+            },
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedLogout01,
+              color: kblack00008,
+              size: 24.0,
+            ),
+          ),
+        ],
       ),
       body: SizedBox(
         width: size.width,

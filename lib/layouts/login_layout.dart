@@ -106,9 +106,9 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
         : 'Have an account? Log in';
     final Size size = MediaQuery.sizeOf(context);
     return SizedBox(
-      height: size.height / 1.2,
+      height: 400,
       width: size.width - 40,
-      child: Column(
+      child: ListView(
         children: [
           // PointerInterceptor(
           //   child: GoogleMap(
@@ -123,12 +123,16 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
             child: Container(
               // width: size.width / 3,
               // height: size.height - 40,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: kblack00005,
+                  width: 1,
                 ),
-                color: kwhite25525525505,
               ),
+              
+              padding: const EdgeInsets.all(5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 // mainAxisSize: MainAxisSize.min,
@@ -165,19 +169,8 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                   ),
                   OutlinedButton(
                     onPressed: () async {
-                      // final user =
-                      await _loginGoogle();
-                      /*
-                        // ignore: use_build_context_synchronously
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FullMapPage(
-                                //   user: user,
-                                ),
-                          ),
-                        );
-                        */
+                      // await _loginGoogle();
+                      await _auth.signInAnonymously();
                     },
                     style: OutlinedButton.styleFrom(
                       fixedSize: const Size(248, 45),
@@ -193,7 +186,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const HugeIcon(
-                          icon: HugeIcons.strokeRoundedGoogle,
+                          icon: HugeIcons.strokeRoundedAnonymous,
                           color: kblack00008,
                           size: 24.0,
                         ),
@@ -201,7 +194,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                           width: 15,
                         ),
                         Text(
-                          "Sign in with Google",
+                          "Sign anonymously",
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
                               height: 1.56,
@@ -266,20 +259,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                   ),
                   MaterialButton(
                     onPressed: () async {
-                      final user = await _logInEmail();
-                      /*
-                        if (user != null) {
-                          // ignore: use_build_context_synchronously
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(
-                                user: user,
-                              ),
-                            ),
-                          );
-                        }
-                        */
+                      await _logInEmail();
                     },
                     color: kblue9813424010,
                     shape: const RoundedRectangleBorder(
