@@ -70,6 +70,7 @@ class DefaultFirebaseOptions {
     projectId: 'yah-kuza',
     databaseURL: 'https://yah-kuza.firebaseio.com',
     storageBucket: 'yah-kuza.appspot.com',
+    androidClientId: '87655672816-d8vqvmflt05edcq78el8375rhurrg570.apps.googleusercontent.com',
     iosClientId: '87655672816-4qdm3flrtovo6g62c287duqqe92fonoi.apps.googleusercontent.com',
     iosBundleId: 'com.example.visionEdit',
   );
@@ -81,6 +82,7 @@ class DefaultFirebaseOptions {
     projectId: 'yah-kuza',
     databaseURL: 'https://yah-kuza.firebaseio.com',
     storageBucket: 'yah-kuza.appspot.com',
+    androidClientId: '87655672816-d8vqvmflt05edcq78el8375rhurrg570.apps.googleusercontent.com',
     iosClientId: '87655672816-r7mdt8m5rmo7qrt674h0so0d2p51p2a6.apps.googleusercontent.com',
     iosBundleId: 'com.example.visionEdit.RunnerTests',
   );
