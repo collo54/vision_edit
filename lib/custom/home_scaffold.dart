@@ -20,7 +20,7 @@ class HomeScaffold extends ConsumerWidget {
     final currentTab = ref.watch(pageIndexProvider);
     ref.watch(previousPageIndexProvider);
     return DefaultTabController(
-      length: 3,
+      length: 2,
       initialIndex: currentTab,
       child: Scaffold(
         body: TabBarView(
@@ -28,7 +28,7 @@ class HomeScaffold extends ConsumerWidget {
           children: [
             HomePage(),
             CameraPage(),
-            MapsPage(),
+            // MapsPage(), //TODO
           ],
         ),
         bottomNavigationBar: Card(
@@ -56,24 +56,12 @@ class HomeScaffold extends ConsumerWidget {
                   size: 24.0,
                 ),
               ),
-              Tab(
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedMapsLocation01,
-                  color: currentTab == 2 ? kblue12915824210 : kblack00005,
-                  size: 24.0,
-                ),
-              ),
               // Tab(
-              //   icon: Icon(Icons.home,
-              //       color: currentTab == 0 ? kpurple1215720310 : kblack00005),
-              // ),
-              // Tab(
-              //   icon: Icon(Icons.add_circle,
-              //       color: currentTab == 1 ? kpurple1215720310 : kblack00005),
-              // ),
-              // Tab(
-              //   icon: Icon(Icons.map,
-              //       color: currentTab == 2 ? kpurple1215720310 : kblack00005),
+              //   icon: HugeIcon(
+              //     icon: HugeIcons.strokeRoundedMapsLocation01,
+              //     color: currentTab == 2 ? kblue12915824210 : kblack00005,
+              //     size: 24.0,
+              //   ),
               // ),
             ],
           ),

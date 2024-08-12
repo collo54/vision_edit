@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vision_edit/pages/view_whole_response_page.dart';
 import 'package:vision_edit/widgets/home_data_widget.dart';
 
 import '../providers/display_response_provider.dart';
@@ -41,7 +42,16 @@ class HomeLayout extends ConsumerWidget {
                 time: parseTimeHour(displayDataModelList[index].timeStamp!),
                 date:
                     parseTimestampDate(displayDataModelList[index].timeStamp!),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewWholeResponsePage(
+                        dataModel: displayDataModelList[index],
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
