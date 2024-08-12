@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:vision_edit/constants/colors.dart';
+import 'package:vision_edit/models/display_data_model.dart';
+import 'package:vision_edit/models/latlng_model.dart';
 import 'package:vision_edit/painters/notebookpainter.dart';
 import 'package:vision_edit/providers/gemini_provider.dart';
 import 'package:vision_edit/providers/image_conversion_provider.dart';
@@ -134,22 +136,69 @@ class CameraPage extends ConsumerWidget {
                           _scaffoldKey.currentState!.showBodyScrim(false, 0.5);
                         },
                         text: 'Ask Gemini')
-                    : FloatingActionButton.small(
-                        shape: const StadiumBorder(),
-                        foregroundColor: Colors.black87,
-                        backgroundColor: Colors.white,
-                        onPressed: () async {
-                          ref
-                              .read(geminiPlantDiseaseResponseModelProvider
-                                  .notifier)
-                              .clearIndex();
-                        },
-                        child: const HugeIcon(
-                          icon: HugeIcons.strokeRoundedClean,
-                          color: kblack00008,
-                          size: 24.0,
-                        ),
-                      ),
+                    : (geminiResponseDataList
+                                .last.preventativeMeasures.isEmpty &&
+                            geminiResponseDataList.last.treatment.isEmpty)
+                        ? FloatingActionButton.small(
+                            shape: const CircleBorder(),
+                            foregroundColor: Colors.black87,
+                            backgroundColor: Colors.white,
+                            onPressed: () async {
+                              ref
+                                  .read(geminiPlantDiseaseResponseModelProvider
+                                      .notifier)
+                                  .clearIndex();
+                            },
+                            child: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedClean,
+                              color: kblack00008,
+                              size: 24.0,
+                            ),
+                          )
+                        : SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Row(children: [
+                              FloatingActionButton.small(
+                                shape: const CircleBorder(),
+                                foregroundColor: Colors.black87,
+                                backgroundColor: Colors.white,
+                                onPressed: () async {
+                                  ref
+                                      .read(
+                                          geminiPlantDiseaseResponseModelProvider
+                                              .notifier)
+                                      .clearIndex();
+                                },
+                                child: const HugeIcon(
+                                  icon: HugeIcons.strokeRoundedClean,
+                                  color: kblack00008,
+                                  size: 24.0,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 3,
+                              ),
+                              FloatingActionButton.small(
+                                shape: const CircleBorder(),
+                                foregroundColor: Colors.black87,
+                                backgroundColor: kblue12915824210,
+                                onPressed: () async {
+                                  _scaffoldKey.currentState!
+                                      .showBodyScrim(true, 0.5);
+
+                                  await _saveToFirestore(ref);
+                                  _scaffoldKey.currentState!
+                                      .showBodyScrim(false, 0.5);
+                                },
+                                child: const HugeIcon(
+                                  icon: HugeIcons.strokeRoundedFile01,
+                                  color: kwhite25525525510,
+                                  size: 24.0,
+                                ),
+                              ),
+                            ]),
+                          ),
               ),
             ),
           ],
@@ -177,9 +226,7 @@ class CameraPage extends ConsumerWidget {
         .read(geminiPlantDiseaseResponseModelProvider.notifier)
         .currentIndex(plantDiseaseResponseModel);
 
-    ref.read(uiImageIndexProvider.notifier).clearIndex();
     ref.read(imageStreamListenerProvider.notifier).clearLst();
-    ref.read(geminiImageListenerProvider.notifier).clearLst();
   }
 
   Future<dynamic> alertdialog(BuildContext context, String text) {
@@ -329,65 +376,6 @@ class CameraPage extends ConsumerWidget {
     return bytes;
   }
 
-//   InputImage? _inputImageFromCameraImage(
-//     CameraImage image,
-//     CameraController controller,
-//   ) {
-//     final camera = controller.description;
-//     final sensorOrientation = camera.sensorOrientation;
-//     // print(
-//     //     'lensDirection: ${camera.lensDirection}, sensorOrientation: $sensorOrientation, ${_controller?.value.deviceOrientation} ${_controller?.value.lockedCaptureOrientation} ${_controller?.value.isCaptureOrientationLocked}');
-//     InputImageRotation? rotation;
-//     if (Platform.isIOS) {
-//       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
-//     } else if (Platform.isAndroid) {
-//       int? rotationCompensation =
-//           _orientations[controller.value.deviceOrientation];
-//       // if (rotationCompensation == null) return null;
-//       if (camera.lensDirection == CameraLensDirection.front) {
-//         // front-facing
-//         rotationCompensation =
-//             (sensorOrientation + rotationCompensation!) % 360;
-//       } else {
-//         // back-facing
-//         rotationCompensation =
-//             (sensorOrientation - rotationCompensation! + 360) % 360;
-//       }
-//       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
-//       // print('rotationCompensation: $rotationCompensation');
-//     }
-//     // if (rotation == null) return null;
-//     // print('final rotation: $rotation');
-
-//     // get image format
-//     final format = InputImageFormatValue.fromRawValue(image.format.raw);
-//     // validate format depending on platform
-//     // only supported formats:
-//     // * nv21 for Android
-//     // * bgra8888 for iOS
-// //     if (format == null ||
-// // // Suggested code may be subject to a license. Learn more: ~LicenseLog:1810724695.
-// //         (Platform.isAndroid &&
-// //             (format != InputImageFormat.nv21 ||
-// //                 format != InputImageFormat.yuv420)) ||
-// //         (Platform.isIOS && format != InputImageFormat.bgra8888)) return null;
-
-//     // since format is constraint to nv21 or bgra8888, both only have one plane
-//     //  if (image.planes.length != 1) return null;
-//     final plane = image.planes.first;
-
-//     // compose InputImage using bytes
-//     return InputImage.fromBytes(
-//       bytes: plane.bytes,
-//       metadata: InputImageMetadata(
-//         size: Size(image.width.toDouble(), image.height.toDouble()),
-//         rotation: InputImageRotation.rotation0deg, // used only in Android
-//         format: format!, // used only in iOS
-//         bytesPerRow: plane.bytesPerRow, // used only in iOS
-//       ),
-//     );
-//   }
-
   Future<void> objectDetect(
     CameraImage image,
     WidgetRef ref,
@@ -422,14 +410,6 @@ class CameraPage extends ConsumerWidget {
           'objects: ${objects.map((detObj) => detObj.labels.map((e) => {
                 'mlText: ${e.text} , level: ${e.confidence.toString()}, index: ${e.index}, rectBounds: ${detObj.boundingBox.toString()} , trackingId: ${detObj.trackingId} '
               })).toList().toString()}';
-      Fluttertoast.showToast(
-          msg: "images detected: $dataString",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.blueAccent,
-          textColor: Colors.white,
-          fontSize: 16.0);
       if (kDebugMode) {
         print(dataString);
       }
@@ -445,6 +425,79 @@ class CameraPage extends ConsumerWidget {
       if (kDebugMode) {
         print('Error in object detection: $e');
       }
+    }
+  }
+
+  String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
+
+  Future<void> _saveToFirestore(WidgetRef ref) async {
+    try {
+      List<String> urls = await firebaseStorage(ref);
+      final userModel = ref.watch(userModelProvider);
+      final plant = ref.watch(geminiPlantDiseaseResponseModelProvider);
+      final latlangModel = LatLangModel(
+        lat: 0.0,
+        lang: 0.0,
+      );
+      final firestoreservice = ref.watch(cloudFirestoreServiceProvider);
+
+      final displayDataModel = DisplayDataModel(
+        id: documentIdFromCurrentDate(),
+        userId: userModel.uid,
+        latlangModel: latlangModel,
+        plantDiseaseResponse: plant.last,
+        timeStamp: documentIdFromCurrentDate(),
+        urls: urls,
+      );
+      await firestoreservice.setDisplayDataModel(displayDataModel);
+      ref.read(geminiImageListenerProvider.notifier).clearLst();
+      ref.read(uiImageIndexProvider.notifier).clearIndex();
+    } on Exception catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error saving file cloud firestore: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      if (kDebugMode) {
+        print('Error saving file cloud firestore: $e');
+      }
+    }
+  }
+
+  Future<List<String>> firebaseStorage(WidgetRef ref) async {
+    try {
+      List<int> selectedIndex = ref.watch(uiImageIndexProvider);
+      final imageBytes = ref.watch(geminiImageListenerProvider);
+      final bytes = selectedIndex.map((index) {
+        return imageBytes[index];
+      }).toList();
+      final firebaseStorageService = ref.watch(firebaseStorageServiceProvider);
+      List<String> urls = [];
+      for (var imageByte in bytes) {
+        String url =
+            await firebaseStorageService.uploadImageBytes(data: imageByte);
+        urls.add(url);
+      }
+      if (kDebugMode) {
+        print('Urls length ${urls.length}');
+      }
+      return urls;
+    } on Exception catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error saving file firebase storage: $e",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.amber,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      if (kDebugMode) {
+        print('Error saving file firebase storage: $e');
+      }
+      rethrow;
     }
   }
 }

@@ -3,9 +3,13 @@ import 'dart:ui' as ui;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vision_edit/providers/showtoast_provider.dart';
+import 'package:vision_edit/providers/user_model_provider.dart';
+import 'package:vision_edit/services/firestore_service.dart';
 
 import '../models/plant_disease_response_model.dart';
+import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/firebase_storage_service.dart';
 import 'gemin_image_provider.dart';
 import 'gemini_image_index_provider.dart';
 import 'gemini_response_text_provider.dart';
@@ -49,7 +53,21 @@ final geminiPlantDiseaseResponseModelProvider = NotifierProvider<
 final uiImageIndexProvider =
     NotifierProvider<UiImageIndex, List<int>>(UiImageIndex.new);
 
+final userModelProvider =
+    NotifierProvider<UserModelProviderListener, UserModel>(
+        UserModelProviderListener.new);
+
 /// creates a provider for AuthService class
 final authenticate = Provider((ref) => AuthService());
 
+/// creates a provider for Firestore service class
+final cloudFirestoreServiceProvider = Provider((ref) {
+  final usermodel = ref.watch(userModelProvider);
+   return FirestoreService(uid: usermodel.uid);
+});
 
+/// creates a provider for Firestore service class
+final firebaseStorageServiceProvider = Provider((ref) {
+  final usermodel = ref.watch(userModelProvider);
+ return FirebaseStorageService(uid: usermodel.uid);
+});

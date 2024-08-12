@@ -4,8 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:vision_edit/custom/auth_state.dart';
 import 'firebase_options.dart';
 
-import 'custom/home_scaffold.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

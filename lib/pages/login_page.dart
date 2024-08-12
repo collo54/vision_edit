@@ -19,7 +19,9 @@ class LoginPage extends ConsumerWidget {
           child: CustomPaint(
             size: const Size(double.infinity, double.infinity),
             painter: NotebookPagePainter(),
-            child: const LoginMobileLayout(),
+            child: const Center(
+              child: LoginMobileLayout(),
+            ),
           ),
         ),
       ),

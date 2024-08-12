@@ -10,7 +10,7 @@ import '../models/user_model.dart';
 
 abstract class AuthBase {
   Stream<UserModel?> get onAuthStateChanged;
-  Future<UserModel?> currentUser();
+  UserModel? currentUser();
   Future<UserModel?> signInAnonymously();
   Future<UserModel?> signInWithEmailAndPassword(String email, String password);
   Future<UserModel?> createUserWithEmailAndPassword(
@@ -41,7 +41,7 @@ class AuthService implements AuthBase {
   }
 
   @override
-  Future<UserModel?> currentUser() async {
+  UserModel? currentUser() {
     final user = _firebaseAuth.currentUser;
     return _userFromFirebase(user);
   }

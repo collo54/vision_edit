@@ -106,7 +106,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
         : 'Have an account? Log in';
     final Size size = MediaQuery.sizeOf(context);
     return SizedBox(
-      height: 400,
+      //height: 600,
       width: size.width - 40,
       child: ListView(
         children: [

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 
 abstract class ObjectDetectionMl {
   Future<dynamic> detectObjects(InputImage inputImage);
@@ -15,8 +15,8 @@ class ObjectDetectService extends ObjectDetectionMl {
   late DetectionMode _mode;
   DetectionMode get mode => _mode;
 
-  late ObjectDetector _objectDetector;
-  ObjectDetector get objectDetector => _objectDetector;
+  ObjectDetector? _objectDetector;
+  ObjectDetector get objectDetector => _objectDetector!;
 
   final _options = {
     'default': '',
@@ -44,7 +44,7 @@ class ObjectDetectService extends ObjectDetectionMl {
   Future<List<DetectedObject>> detectObjects(InputImage inputImage) async {
     try {
       List<DetectedObject> objects =
-          await _objectDetector.processImage(inputImage);
+          await _objectDetector!.processImage(inputImage);
       return objects;
     } on Exception catch (e) {
       if (kDebugMode) {
@@ -57,7 +57,7 @@ class ObjectDetectService extends ObjectDetectionMl {
   @override
   Future<void> disposeObjectDetector() async {
     try {
-      await _objectDetector.close();
+      await _objectDetector!.close();
     } on Exception catch (e) {
       if (kDebugMode) {
         print('Error in disposeObjectdetection(): $e');
@@ -73,6 +73,9 @@ class ObjectDetectService extends ObjectDetectionMl {
     required int detectmode,
   }) async {
     try {
+      if (_objectDetector != null) {
+        return;
+      }
       if (detectmode == 0) {
         _mode = DetectionMode.stream;
       } else if (detectmode == 1) {
