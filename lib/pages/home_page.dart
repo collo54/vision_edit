@@ -6,6 +6,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:vision_edit/constants/colors.dart';
 import 'package:vision_edit/widgets/thumbnail_widget.dart';
 
+import '../layouts/home_layout.dart';
 import '../painters/notebookpainter.dart';
 import '../providers/providers.dart';
 
@@ -54,14 +55,15 @@ class HomePage extends ConsumerWidget {
           child: CustomPaint(
             size: const Size(double.infinity, double.infinity),
             painter: NotebookPagePainter(),
-            child: ListView(
-              children: [
-                ThumbnailWidget(),
-                ThumbnailWidget(),
-                ThumbnailWidget(),
-                ThumbnailWidget(),
-              ],
-            ),
+            child: const HomeLayout(),
+            // ListView(
+            //   children: [
+            //     ThumbnailWidget(),
+            //     ThumbnailWidget(),
+            //     ThumbnailWidget(),
+            //     ThumbnailWidget(),
+            //   ],
+            // ),
           ),
         ),
       ),
