@@ -48,6 +48,14 @@ class AuthService implements AuthBase {
 
   @override
   Future<UserModel?> signInAnonymously() async {
+    Fluttertoast.showToast(
+        msg: "Signing in",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blueAccent,
+        textColor: Colors.white,
+        fontSize: 16.0);
     final authResult = await _firebaseAuth.signInAnonymously();
     return _userFromFirebase(authResult.user);
   }
@@ -180,6 +188,14 @@ class AuthService implements AuthBase {
 
   @override
   Future<void> signOut() async {
+    Fluttertoast.showToast(
+        msg: "Logging out",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blueAccent,
+        textColor: Colors.white,
+        fontSize: 16.0);
     final googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
     //  final facebookLogin = FacebookLogin();

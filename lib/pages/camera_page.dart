@@ -131,6 +131,14 @@ class CameraPage extends ConsumerWidget {
                 child: geminiResponseDataList.isEmpty
                     ? PromptTextButtonWidget(
                         onPressed: () async {
+                          Fluttertoast.showToast(
+                              msg: "Prompting Gemini",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.blueAccent,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
                           _scaffoldKey.currentState!.showBodyScrim(true, 0.5);
                           await queryGemini(ref, bytesListIndexes);
                           _scaffoldKey.currentState!.showBodyScrim(false, 0.5);
@@ -144,6 +152,14 @@ class CameraPage extends ConsumerWidget {
                             foregroundColor: Colors.black87,
                             backgroundColor: Colors.white,
                             onPressed: () async {
+                              Fluttertoast.showToast(
+                                  msg: "clear response",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.blueAccent,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
                               ref
                                   .read(geminiPlantDiseaseResponseModelProvider
                                       .notifier)
@@ -164,6 +180,14 @@ class CameraPage extends ConsumerWidget {
                                 foregroundColor: Colors.black87,
                                 backgroundColor: Colors.white,
                                 onPressed: () async {
+                                  Fluttertoast.showToast(
+                                      msg: "Clear response",
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.blueAccent,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
                                   ref
                                       .read(
                                           geminiPlantDiseaseResponseModelProvider
@@ -249,6 +273,14 @@ class CameraPage extends ConsumerWidget {
     int imageNumber = ref.watch(imageFrameProvider);
 
     await controller.startImageStream((image) async {
+      Fluttertoast.showToast(
+          msg: "Start Image Capture",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
       ref.read(imageFrameProvider.notifier).changeInt(imageNumber + 1);
       if (imageNumber % 30 == 0) {
         ref.read(imageFrameProvider.notifier).changeIntTo0();
@@ -294,6 +326,14 @@ class CameraPage extends ConsumerWidget {
 
   FutureOr<void> stopImageStream(
       CameraController controller, WidgetRef ref) async {
+    Fluttertoast.showToast(
+        msg: "Stopping Image capture",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blueAccent,
+        textColor: Colors.white,
+        fontSize: 16.0);
     bool isImageStreamOn = ref.watch(showToastProvider);
 
     if (isImageStreamOn == true) {
@@ -469,6 +509,14 @@ class CameraPage extends ConsumerWidget {
 
   Future<List<String>> firebaseStorage(WidgetRef ref) async {
     try {
+      Fluttertoast.showToast(
+          msg: "Saving Gemini Analysis",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0);
       List<int> selectedIndex = ref.watch(uiImageIndexProvider);
       final imageBytes = ref.watch(geminiImageListenerProvider);
       final bytes = selectedIndex.map((index) {

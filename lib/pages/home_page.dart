@@ -56,14 +56,7 @@ class HomePage extends ConsumerWidget {
             size: const Size(double.infinity, double.infinity),
             painter: NotebookPagePainter(),
             child: const HomeLayout(),
-            // ListView(
-            //   children: [
-            //     ThumbnailWidget(),
-            //     ThumbnailWidget(),
-            //     ThumbnailWidget(),
-            //     ThumbnailWidget(),
-            //   ],
-            // ),
+         
           ),
         ),
       ),

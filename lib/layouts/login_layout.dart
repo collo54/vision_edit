@@ -131,7 +131,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                   width: 1,
                 ),
               ),
-              
+
               padding: const EdgeInsets.all(5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,7 +194,7 @@ class _LoginMobileLayoutState extends State<LoginMobileLayout> {
                           width: 15,
                         ),
                         Text(
-                          "Sign anonymously",
+                          "Sign in anonymously",
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
                               height: 1.56,
